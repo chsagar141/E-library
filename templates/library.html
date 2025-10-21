@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container">
+    <h1>Library</h1>
+    <p>All books from local JSON. Click to view or download PDF.</p>
+    <div class="cards">
+        {% for book in books %}
+        <div class="card">
+            <h3>{{ book.title }}</h3>
+            <p><strong>Author:</strong> {{ book.author }}</p>
+            <p><strong>Tags:</strong> {{ book.tags | join(', ') }}</p>
+            <a href="{{ book.pdf_url }}" target="_blank" rel="noopener">View / Download PDF</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

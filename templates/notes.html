@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container">
+    <h1>Notes</h1>
+    <p>Select class/stream to view notes.</p>
+
+    <div class="grid">
+        <button class="note-btn" data-class="CBSE">CBSE</button>
+        <button class="note-btn" data-class="ICSE">ICSE</button>
+        <button class="note-btn" data-class="CHSE">CHSE</button>
+        <button class="note-btn" data-class="BTECH-CSE">B TECH - CSE</button>
+    </div>
+
+    <div id="notes-result"></div>
+</section>
+
+<script>
+    document.querySelectorAll(".note-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const cls = btn.dataset.class;
+            // open results in a new tab containing filtered list from local /api/books
+            const w = window.open("", "_blank");
+            w.document.write("<h2>Notes for " + cls + "</h2><div>Loading...</div>");
+            try {
+                const res = await fetch("/api/books");
+                const books = await res.json();
+                const filtered = books.filter(b => b.tags && b.tags.includes(cls));
+                if (!filtered.length) {
+                    w.document.body.innerHTML = "<h2>Notes for " + cls + "</h2><p>No notes found.</p>";
+                    return;
+                }
+                const html = filtered.map(b => `<div style="margin:10px"><h3>${b.title}</h3><p>${b.author}</p><a href="${b.pdf_url}" target="_blank">Open</a></div>`).join("");
+                w.document.body.innerHTML = "<h2>Notes for " + cls + "</h2>" + html;
+            } catch (err) {
+                w.document.body.innerHTML = "<h2>Notes for " + cls + "</h2><p>Failed to load.</p>";
+            }
+        });
+    });
+</script>
+{% endblock %}

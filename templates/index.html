@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="container">
+    <h1>Home — Top 5 Trending Books (Open Library)</h1>
+    <div id="trending" class="cards"></div>
+    <p class="note">Trending fetched from Open Library search API.</p>
+</section>
+<script>
+    /* main.js also loaded. This page-specific fetch: */
+    (async function () {
+        const target = document.getElementById("trending");
+        target.innerHTML = "<p>Loading...</p>";
+        try {
+            // Query Open Library for popular titles by subject "bestsellers" then map to top 5
+            const res = await fetch("https://openlibrary.org/search.json?subject=bestsellers&limit=5");
+            const data = await res.json();
+            const docs = data.docs || [];
+            if (!docs.length) {
+                target.innerHTML = "<p>No trending items found.</p>";
+                return;
+            }
+            target.innerHTML = docs.slice(0, 5).map(d => `
+      <div class="card">
+        <h3>${d.title}</h3>
+        <p>${d.author_name ? d.author_name.join(", ") : "Unknown"}</p>
+        <a href="https://openlibrary.org${d.key}" target="_blank">Open library page</a>
+      </div>
+    `).join("");
+        } catch (e) {
+            target.innerHTML = "<p>Failed to fetch trending.</p>";
+            console.error(e);
+        }
+    })();
+</script>
+{% endblock %}
